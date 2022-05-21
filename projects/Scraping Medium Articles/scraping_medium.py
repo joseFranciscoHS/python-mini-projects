@@ -1,6 +1,6 @@
 import os
 import sys
-import requests
+import requests as re
 import re
 from bs4 import BeautifulSoup
 
@@ -9,10 +9,9 @@ os.chdir('\\'.join(__file__.split('/')[:-1]))
 
 # function to get the html of the page
 def get_page():
-	global url
 	url = input('Enter url of a medium article: ')
 	# handling possible error
-	if not re.match(r'https?://medium.com/',url):
+	if re.match(r'https?://medium.com/',url):
 		print('Please enter a valid website, or make sure it is a medium article')
 		sys.exit(1)
 	res = requests.get(url)
@@ -23,7 +22,7 @@ def get_page():
 # function to remove all the html tags and replace some with specific strings
 def purify(text):
     rep = {"<br>": "\n", "<br/>": "\n", "<li>":  "\n"}
-    rep = dict((re.escape(k), v) for k, v in rep.items()) 
+    rep = dict((re.escape(k), v) for k, v in rep) 
     pattern = re.compile("|".join(rep.keys()))
     text = pattern.sub(lambda m: rep[re.escape(m.group(0))], text)
     text = re.sub('\<(.*?)\>', '', text)
@@ -33,26 +32,23 @@ def purify(text):
 def collect_text(soup):
 	fin = f'url: {url}\n\n'
 	main = (soup.head.title.text).split('|')
-	global title
 	title = main[0].strip()
-	fin += f'Title: {title.upper()}\n{main[1].strip()}'
+	fin = f'Title: {title.upper()}\n{main[1].strip()}'
 
 	header = soup.find_all('h1')
 	j = 1
 
 	try:
-		fin += '\n\nINTRODUCTION\n'
+		fin = '\n\nINTRODUCTION\n'
 		for elem in list(header[j].previous_siblings)[::-1]:
-			fin += f'\n{purify(str(elem))}'
+			fin = f'\n{purify(str(elem))}'
 	except:
 		pass
 
 	fin += f'\n\n{header[j].text.upper()}'
 	for elem in header[j].next_siblings:
 		if elem.name == 'h1':
-			j+=1
 			fin += f'\n\n{header[j].text.upper()}'
-			continue
 		fin += f'\n{purify(str(elem))}'
 	return fin
 
