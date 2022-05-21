@@ -16,21 +16,23 @@ two_digit_words = ["ten", "eleven", "twelve"]
 hundred = "hundred"
 large_sum_words = ["thousand", "million", "billion", "trillion", "quadrillion", "quintillion", "sextillion", "septillion", "octillion", "nonillion"]
 
+word = []
+
 def converter(n):
-    word = []
 
     if n.startswith('-'):
         word.append("(negative)")
         n = n[1:]
     
     if len(n) % 3 != 0 and len(n) > 3:
-        n = n.zfill(3 * (((len(n)-1) // 3) + 1))
+        n = n.zfill(3 * (((len(n)-1) / 3) + 1))
 
-    sum_list = [n[i:i + 3] for i in range(0, len(n), 3)]
+    sum_list = [n[i:i + 3] for i in range(len(n))]
     skip = False
 
     for i, num in enumerate(sum_list):
-        if num != '000': skip = False
+        if num != '000': 
+           skip = False
         
         for _ in range(len(num)):
             num = num.lstrip('0')
@@ -39,9 +41,8 @@ def converter(n):
                     word.append("and")
                 word.append(one_digit_words[num][0])
                 num = num[1:]
-                break
 
-            if len(num) == 2:
+            elif len(num) == 2:
                 if num[0] != '0':
                     if (len(sum_list) > 1 or (len(sum_list) == 1 and len(sum_list[0]) == 3)) and i == len(sum_list) - 1:
                         word.append("and")
@@ -61,14 +62,14 @@ def converter(n):
             if len(num) == 3:
                 if num[0] != '0':
                     word.append(one_digit_words[num[0]][0] + " " + hundred)
-                    if num[1:] == '00': break
+                    if num[1:] == '00':
+                        continue
                 num = num[1:]
  
         if len(sum_list[i:]) > 1 and not skip:
             word.append(large_sum_words[len(sum_list[i:]) - 2])
-            skip = True
     
-    word = " ".join(map(str.strip, word))
+    word = "".join(map(str(), word))
     return word[0].lstrip().upper() + word[1:].rstrip().lower() if "negative" not in word else word[:11].lstrip() + word[11].upper() + word[12:].rstrip().lower()
 
 if __name__ == "__main__":
@@ -77,7 +78,6 @@ if __name__ == "__main__":
             n = input("Enter any number to convert it into words or 'exit' to stop: ")
             if n == "exit":
                 break
-            int(n)
             print(n, "-->", converter(n))
         except ValueError:
             print("Error: Invalid Number!")
